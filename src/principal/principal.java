@@ -65,12 +65,12 @@ public class principal {
 	 */
 	private void initialize() {
 		frame = new JFrame();
-		frame.setBounds(100, 100, 1005, 598);
+		frame.setBounds(100, 100, 560, 434);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 		
 		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
-		tabbedPane.setBounds(10, 11, 720, 377);
+		tabbedPane.setBounds(10, 11, 529, 377);
 		frame.getContentPane().add(tabbedPane);
 		
 		JPanel panelCadastrar = new JPanel();
@@ -257,12 +257,60 @@ public class principal {
 		tf_lucro_editar.setBounds(304, 209, 144, 32);
 		panelEditar.add(tf_lucro_editar);
 		
-		JButton btn_editar = new JButton("Editar");
+		JButton btn_editar = new JButton("Salvar");
+		btn_editar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+					 String id = tf_id_editar.getText().trim();
+					 for (produto p : listaProdutos) {
+						 if (p.getId().equalsIgnoreCase(id)) {
+							 try {
+								 p.setNome(tf_nome_editar.getText());
+								 p.setQuantidade(Integer.parseInt(tf_quantidade_editar.getText()));
+								 p.setPrecoCompra(Double.parseDouble(tf_preco_compra_editar.getText()));
+								 p.setPrecoVenda(Double.parseDouble(tf_preco_venda_editar.getText()));
+								 p.setEstoque(Integer.parseInt(tf_estoque_minimo_editar.getText()));
+								 tf_lucro_editar.setText(String.format("%.2f", p.getLucro()));
+								 javax.swing.JOptionPane.showMessageDialog(null, "Produto atualizado com sucesso!");
+								 limparCamposEditar();
+							 } catch (Exception ex) {
+								 javax.swing.JOptionPane.showMessageDialog(null, "Erro ao atualizar: " + ex.getMessage());
+							 }
+							 	return;
+						 	}
+					 	}
+					 javax.swing.JOptionPane.showMessageDialog(null, "Produto com ID não encontrado.");
+				}
+			});
 		btn_editar.setBounds(176, 290, 136, 32);
 		panelEditar.add(btn_editar);
 		
 		JButton btn_consultar = new JButton("Consultar");
-		btn_consultar.setBounds(131, 29, 88, 23);
+		btn_consultar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String idBusca = tf_id_editar.getText().trim();
+				 if (idBusca.isEmpty()) {
+					 javax.swing.JOptionPane.showMessageDialog(null, "Informe o ID do produto.");
+					 return;
+				 }
+				 boolean encontrado = false;
+				 for (produto p : listaProdutos) {
+					 if (p.getId().equalsIgnoreCase(idBusca)) {
+						 tf_nome_editar.setText(p.getNome());
+						 tf_quantidade_editar.setText(String.valueOf(p.getQuantidade()));
+						 tf_preco_compra_editar.setText(String.valueOf(p.getPrecoCompra()));
+						 tf_preco_venda_editar.setText(String.valueOf(p.getPrecoVenda()));
+						 tf_estoque_minimo_editar.setText(String.valueOf(p.getEstoque()));
+						 tf_lucro_editar.setText(String.format("%.2f", p.getLucro()));
+						 encontrado = true;
+						 break;
+					 }
+				 }
+				 if (!encontrado) {
+					 javax.swing.JOptionPane.showMessageDialog(null, "Produto não encontrado.");
+				 }
+			}
+		});
+		btn_consultar.setBounds(131, 29, 109, 23);
 		panelEditar.add(btn_consultar);
 		
 		JPanel panelBuscar = new JPanel();
@@ -280,7 +328,27 @@ public class principal {
 		panelBuscar.add(lbl_id_buscar);
 		
 		JButton btn_consultar_1 = new JButton("Consultar");
-		btn_consultar_1.setBounds(131, 18, 88, 23);
+		btn_consultar_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String idBusca = tf_id_buscar.getText().trim();
+				 if (idBusca.isEmpty()) {
+					 tf_mostrar_buscar.setText("Informe um ID para consulta.");
+					 return;
+				 }
+				 boolean encontrado = false;
+				 for (produto p : listaProdutos) {
+					 if (p.getId().equalsIgnoreCase(idBusca)) {
+						 tf_mostrar_buscar.setText(p.toString());
+						 encontrado = true;
+						 break;
+					 }
+				 }
+				 if (!encontrado) {
+					 tf_mostrar_buscar.setText("Produto não encontrado.");
+				 }
+			}
+		});
+		btn_consultar_1.setBounds(131, 18, 109, 23);
 		panelBuscar.add(btn_consultar_1);
 		
 		tf_mostrar_buscar = new JTextField();
@@ -308,9 +376,51 @@ public class principal {
 		tf_id_exluir.setBounds(41, 13, 80, 32);
 		panelExcluir.add(tf_id_exluir);
 		
+		tf_id_exluir.addFocusListener(new java.awt.event.FocusAdapter() {
+			 public void focusLost(java.awt.event.FocusEvent evt) {
+			 String id = tf_id_exluir.getText().trim();
+			 for (produto p : listaProdutos) {
+			 if (p.getId().equalsIgnoreCase(id)) {
+			 tf_mostra_exluir.setText(p.toString());
+			 return;
+			 }
+			 }
+			 tf_mostra_exluir.setText("Produto não encontrado.");
+			 }
+			});
+
+
 		JButton btn_excluir = new JButton("Excluir");
 		btn_excluir.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+						String id = tf_id_exluir.getText().trim();
+						 if (id.isEmpty()) {
+							 javax.swing.JOptionPane.showMessageDialog(null, "Informe o ID do produto para excluir.");
+							 return;
+						 	}
+						 produto produtoEncontrado = null;
+						 for (produto p : listaProdutos) {
+							 if (p.getId().equalsIgnoreCase(id)) {
+								 produtoEncontrado = p;
+								 break;
+							 }
+						 }
+						 if (produtoEncontrado == null) {
+							 tf_mostra_exluir.setText("Produto não encontrado.");
+							 return;
+						 }
+						 
+						 int confirmacao = javax.swing.JOptionPane.showConfirmDialog(null,
+						 "Tem certeza que deseja excluir o produto:\n" + produtoEncontrado.toString(),
+						 "Confirmar Exclusão", javax.swing.JOptionPane.YES_NO_OPTION);
+						 
+						 if (confirmacao == javax.swing.JOptionPane.YES_OPTION) {
+							 listaProdutos.remove(produtoEncontrado);
+							 tf_mostra_exluir.setText("Produto excluído com sucesso.");
+							 tf_id_exluir.setText("");
+						 } else {
+							 tf_mostra_exluir.setText("Exclusão cancelada.");
+						 }
 			}
 		});
 		btn_excluir.setBounds(131, 18, 88, 23);
@@ -351,6 +461,16 @@ public class principal {
 		 tf_preco_venda.setText("");
 		 tf_lucro.setText("");
 		 tf_estoque_minimo.setText("");
+		}
+	
+	private void limparCamposEditar() {
+		tf_id_editar.setText("");
+		 tf_nome_editar.setText("");
+		 tf_quantidade_editar.setText("");
+		 tf_preco_compra_editar.setText("");
+		 tf_preco_venda_editar.setText("");
+		 tf_lucro_editar.setText("");
+		 tf_estoque_minimo_editar.setText("");
 		}
 
 }
