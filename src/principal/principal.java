@@ -1,7 +1,9 @@
 package principal;
 
 import java.awt.EventQueue;
-
+import modelo.produto; 
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
 import javax.swing.JPanel;
@@ -33,6 +35,7 @@ public class principal {
 	private JTextField tf_mostrar_buscar;
 	private JTextField tf_id_exluir;
 	private JTextField tf_mostra_exluir;
+	private List<produto> listaProdutos = new ArrayList<>();
 
 	/**
 	 * Launch the application.
@@ -124,7 +127,20 @@ public class principal {
 		tf_preco_venda.setBounds(368, 155, 80, 32);
 		panelCadastrar.add(tf_preco_venda);
 		
+		tf_preco_compra.addFocusListener(new java.awt.event.FocusAdapter() {
+			 public void focusLost(java.awt.event.FocusEvent evt) {
+			 atualizarLucro();
+			 }
+			});
+			tf_preco_venda.addFocusListener(new java.awt.event.FocusAdapter() {
+			 public void focusLost(java.awt.event.FocusEvent evt) {
+			 atualizarLucro();
+			 }
+			});
+
+		
 		tf_lucro = new JTextField();
+		tf_lucro.setEditable(false);
 		tf_lucro.setColumns(10);
 		tf_lucro.setBounds(304, 211, 144, 32);
 		panelCadastrar.add(tf_lucro);
@@ -145,6 +161,24 @@ public class principal {
 		panelCadastrar.add(tf_id);
 		
 		JButton btn_cadastrar = new JButton("Cadastrar");
+		btn_cadastrar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					 String id = tf_id.getText();
+					 String nome = tf_nome.getText();
+					 int quantidade = Integer.parseInt(tf_quantidade.getText());
+					 double precoCompra = Double.parseDouble(tf_preco_compra.getText());
+					 double precoVenda = Double.parseDouble(tf_preco_venda.getText());
+					 int estoqueMinimo = Integer.parseInt(tf_estoque_minimo.getText());
+					 produto novo = new produto(id, nome, quantidade, estoqueMinimo, precoCompra, precoVenda);
+					 listaProdutos.add(novo);
+					 javax.swing.JOptionPane.showMessageDialog(null, "Produto cadastrado com sucesso!");
+					 limparCamposCadastro();
+					 } catch (Exception ex) {
+					 javax.swing.JOptionPane.showMessageDialog(null, "Erro ao cadastrar produto: " + ex.getMessage());
+					 }
+			}
+		});
 		btn_cadastrar.setBounds(176, 292, 136, 32);
 		panelCadastrar.add(btn_cadastrar);
 		
@@ -218,6 +252,7 @@ public class principal {
 		panelEditar.add(lbl_lucro_editar);
 		
 		tf_lucro_editar = new JTextField();
+		tf_lucro_editar.setEditable(false);
 		tf_lucro_editar.setColumns(10);
 		tf_lucro_editar.setBounds(304, 209, 144, 32);
 		panelEditar.add(tf_lucro_editar);
@@ -292,4 +327,30 @@ public class principal {
 		tf_mostra_exluir.setBounds(83, 129, 538, 209);
 		panelExcluir.add(tf_mostra_exluir);
 	}
+	
+	private void atualizarLucro() {
+		 try {
+		 double compra = Double.parseDouble(tf_preco_compra.getText());
+		 double venda = Double.parseDouble(tf_preco_venda.getText());
+		 if (compra > 0) {
+		 double lucro = ((venda - compra) / compra) * 100;
+		 tf_lucro.setText(String.format("%.2f", lucro));
+		 } else {
+		 tf_lucro.setText("0");
+		 }
+		 } catch (NumberFormatException e) {
+		 tf_lucro.setText("0");
+		 }
+		}
+	
+	private void limparCamposCadastro() {
+		 tf_id.setText("");
+		 tf_nome.setText("");
+		 tf_quantidade.setText("");
+		 tf_preco_compra.setText("");
+		 tf_preco_venda.setText("");
+		 tf_lucro.setText("");
+		 tf_estoque_minimo.setText("");
+		}
+
 }
